@@ -1,79 +1,100 @@
 enchant();
 
-var stage, game;
+var blocks = [
+[
+[1,1],
+  [0,1],
+  [0,1]
+  ],
+  [
+  [1,1],
+  [1,0],
+  [1,0]
+  ],	
+  [
+  [1,1],
+  [1,1]
+  ],
+  [
+  [1,0],
+  [1,1],
+  [1,0]
+  ],
+  [
+  [1,0],
+  [1,1],
+  [0,1]
+  ],
+  [
+  [0,1],
+  [1,1],
+  [1,0]
+  ],
+  [
+  [1],
+  [1],
+  [1],
+  [1]
+  ]
+  ];
 
-gsettings = {                 
-	width:320
-		,height:320
-		,fps:30
-};
+  var stage, game;
+
+  gsettings = {                 
+    width:320
+      ,height:320
+      ,fps:30
+  };
+
+
+var block = blocks[random(blocks.length)];
+var posx = 0, posy = 0;
+var MAP_WIDTH = 10, MAP_HEIGHT = 20;
+var BLOCK_SIZE = gsettings.height / MAP_HEIGHT;
+
+var eSurface = Class.create(Surface,{
+  initialize:function(width,height){
+    Surface.call(this,width,height);
+  },//ブロックを描画
+    paintMatrix:function(matrix, offsetx, offsety, color){
+      this.context.fillStyle = color; 
+      for(y = 0; y < matrix.length; y++){
+        for(x = 0; x < matrix[y].length; x++){
+          if(block[y][x]){
+            var px = (x + offsetx) * BLOCK_SIZE;
+            var py = (y + offsety) * BLOCK_SIZE;
+            this.context.fillRect(px, py, BLOCK_SIZE, BLOCK_SIZE);
+          }
+        }
+      }
+    }
+});
 
 window.onload = function(){
 
-	game = new Core(gsettings.width,gsettings.height);
-	game.fps = gsettings.fps;
-	stage = game.rootScene;     
+  game = new Core(gsettings.width,gsettings.height);
+  game.fps = gsettings.fps;
+  stage = game.rootScene;     
 
-	game.onload=function(){
-		var sprite = new Sprite(100,100);
-		var surface = new Surface(100,100);
-		sprite.image = surface;
-
-		sprite.x = 100;
-		sprite.y = 100;
-		context = surface.context;
-
-		var matrix = blocks[Math.floor(Math.random() * blocks.length)];
-
-		for(y = 0; y < matrix.length; y++){
-			for(x = 0; x < matrix[y].length; x++){
-				if(matrix[y][x]){
-					//context.fillRect((x + 0) * 20, (y + 0) * 20, 20, 20);
-					context.fillRect(x * 20, y * 20, x + 20, y + 20);
-				}
-			}
-		}
-
-
-		stage.addChild(sprite);
-	};
-	game.start();
+  game.onload=function(){
+    var sprite = new Sprite(BLOCK_SIZE * block[0].length, BLOCK_SIZE * block.length);
+    var surface = new eSurface(BLOCK_SIZE * block[0].length, BLOCK_SIZE * block.length);
+    sprite.image = surface;
+    sprite.x = posx;
+    sprite.y = posy;
+    sprite.backgroundColor = "black";
+    surface.paintMatrix(block, posx, posy, blockColors[random(blockColors.length)]);
+    stage.addChild(sprite);
+  };
+  game.start();
 };
 
-var blocks = [
-	[
-		[1,1],
-		[0,1],
-		[0,1]
-	],
-	[
-		[1,1],
-		[1,0],
-		[1,0]
-	],	
-	[
-		[1,1],
-		[1,1]
-	],
-	[
-		[1,0],
-		[1,1],
-		[1,0]
-	],
-	[
-		[1,0],
-		[1,1],
-		[0,1]
-	],
-	[
-		[0,1],
-		[1,1],
-		[1,0]
-	],
-	[
-		[1],
-		[1],
-		[1],
-		[1]
-	]
-	];
+function random(size){
+  return Math.floor(Math.random() * size);
+}
+
+var blockColors = [
+"red", "yellow", "magenta", "green", "blue", "orange", "cyan"
+];
+
+
