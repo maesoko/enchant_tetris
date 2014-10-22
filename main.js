@@ -100,5 +100,3 @@ function random(size){
 var blockColors = [
 "red", "yellow", "magenta", "green", "blue", "orange", "cyan"
 ];
-
-
