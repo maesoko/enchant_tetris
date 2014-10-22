@@ -38,32 +38,41 @@ var blocks = [
   ]
   ];
 
-  var stage, game;
 
   gsettings = {                 
     width:320
       ,height:320
-      ,fps:30
+      ,fps:60
+      ,mapWidth: 10
+      ,mapHeight: 20
   };
 
-
+var stage, game, blockSprite, blockSurface;
 var block = blocks[random(blocks.length)];
+var BLOCK_SIZE = gsettings.height / gsettings.mapHeight;
 var posx = 0, posy = 0;
-var MAP_WIDTH = 10, MAP_HEIGHT = 20;
-var BLOCK_SIZE = gsettings.height / MAP_HEIGHT;
 
-var eSurface = Class.create(Surface,{
+var BlockSprite = Class.create(Sprite,{
+  initialize:function(width,height,image){
+    Sprite.call(this,width,height);
+    this.image = image;
+    stage.addChild(this);
+  },
+    onenterframe:function(){
+      blockSurface.paintMatrix(block, blockColors[random(blockColors.length)]);
+    }
+});
+
+var Block = Class.create(Surface,{
   initialize:function(width,height){
     Surface.call(this,width,height);
   },//ブロックを描画
-    paintMatrix:function(matrix, offsetx, offsety, color){
+    paintMatrix:function(matrix, color){
       this.context.fillStyle = color; 
       for(y = 0; y < matrix.length; y++){
         for(x = 0; x < matrix[y].length; x++){
           if(block[y][x]){
-            var px = (x + offsetx) * BLOCK_SIZE;
-            var py = (y + offsety) * BLOCK_SIZE;
-            this.context.fillRect(px, py, BLOCK_SIZE, BLOCK_SIZE);
+            this.context.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
           }
         }
       }
@@ -77,14 +86,9 @@ window.onload = function(){
   stage = game.rootScene;     
 
   game.onload=function(){
-    var sprite = new Sprite(BLOCK_SIZE * block[0].length, BLOCK_SIZE * block.length);
-    var surface = new eSurface(BLOCK_SIZE * block[0].length, BLOCK_SIZE * block.length);
-    sprite.image = surface;
-    sprite.x = posx;
-    sprite.y = posy;
-    sprite.backgroundColor = "black";
-    surface.paintMatrix(block, posx, posy, blockColors[random(blockColors.length)]);
-    stage.addChild(sprite);
+    blockSurface = new Block(BLOCK_SIZE * block[0].length, BLOCK_SIZE * block.length);
+    blockSprite = new BlockSprite(BLOCK_SIZE * block[0].length, BLOCK_SIZE * block.length, blockSurface);
+
   };
   game.start();
 };
