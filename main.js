@@ -44,7 +44,7 @@ var BLOCK_COLORS = [
   gsettings = {                 
     width:320
       ,height:320
-      ,fps:60
+      ,fps:10
       ,blockMapWidth: 10
       ,blockMapHeight: 20
   };
@@ -58,13 +58,13 @@ var BlockSprite = Class.create(Sprite,{
     Sprite.call(this,width,height);
     this.image = image;
     this.x = 100;
-    this.y = 100;
     stage.addChild(this);
   },
   onenterframe:function(){
-    
-    if(game.input.up) {
-      block = rotate(block);
+    if(game.input.up){
+      block = blockSurface.rotate(block);
+      //前のブロック領域を削除
+      blockSurface.context.clearRect(0, 0, blockSurface.width, blockSurface.height);
     }
     blockSurface.paintMatrix(block, blockColor);
   }
@@ -74,16 +74,26 @@ var Block = Class.create(Surface,{
   initialize:function(width,height){
     Surface.call(this,width,height);
   },//ブロックを描画
-  paintMatrix:function(matrix, color){
-    this.context.strokeStyle = color;
-    for(y = 0; y < matrix.length; y++){
-      for(x = 0; x < matrix[y].length; x++){
-        if(matrix[y][x]){
-          this.context.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+    paintMatrix:function(matrix, color){
+      this.context.fillStyle = color;
+      for(y = 0; y < matrix.length; y++){
+        for(x = 0; x < matrix[y].length; x++){
+          if(matrix[y][x]){
+            this.context.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+          }
         }
       }
+    },
+    rotate:function(block){
+      var rotated = [];
+      for (var x = 0; x < block[0].length; x++) {
+        rotated[x] = [];
+        for (var y = 0; y < block.length; y++) {
+          rotated[x][block.length - y - 1] = block[y][x];
+        }
+      }
+      return rotated;
     }
-  }
 });
 
 function initGame(){
@@ -100,25 +110,10 @@ function initGame(){
   }
 }
 
-function rotate(matrix) {
-  
-  var rotated = [];
-  for (var x = 0; x < matrix[0].length; x++) {
-    rotated[x] = [];
-    for (var y = 0; y < matrix.length; y++) {
-      rotated[x][matrix.length - y - 1] = matrix[y][x];
-    }
-  }
-  return rotated;
-}
-
-
 window.onload = function(){
   initGame();
   game.onload=function(){
-    //blockSurface = new Block(BLOCK_SIZE * block[0].length, BLOCK_SIZE * block.length);
     blockSurface = new Block(100,100);
-    //blockSprite = new BlockSprite(BLOCK_SIZE * block[0].length, BLOCK_SIZE * block.length, blockSurface);
     blockSprite = new BlockSprite(100,100,blockSurface);
   };
   game.start();
