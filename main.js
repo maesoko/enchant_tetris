@@ -84,26 +84,27 @@ var eSprite = Class.create(Sprite,{
     stage.addChild(this);
   },
   onenterframe:function(){
-    if(game.input.up && this.matrix != blockMap){
+    this.image.context.clearRect(0, 0, this.image.width, this.image.height); //前のブロック領域を削除
+
+    if(game.input.up && this.isBlock(this.matrix)){
       if(this.check(blockMap, this.rotate(this.matrix), this.x / this.blockSize, this.y / this.blockSize)){
         this.matrix = this.rotate(this.matrix);
-        this.image.context.clearRect(0, 0, this.image.width, this.image.height); //前のブロック領域を削除
       }
     }
 
-    if(game.input.left && isBlock(this.matrix)){
+    if(game.input.left && this.isBlock(this.matrix)){
       if(this.check(blockMap, this.matrix, (this.x - this.blockSize) / this.blockSize, this.y / this.blockSize)){
         this.x -= this.speed;
       }
     }
 
-    if(game.input.right && isBlock(this.matrix)){
+    if(game.input.right && this.isBlock(this.matrix)){
       if(this.check(blockMap, this.matrix, (this.x + this.blockSize) / this.blockSize, this.y / this.blockSize)){
         this.x += this.speed;
       }
     }
 
-    if(game.input.down && isBlock(this.matrix)){
+    if(game.input.down && this.isBlock(this.matrix)){
       var y = this.y / this.blockSize;
       while(this.check(blockMap, this.matrix, this.x / this.blockSize, y)){
         y++;
@@ -111,7 +112,7 @@ var eSprite = Class.create(Sprite,{
       this.y = y * this.blockSize - this.blockSize;
     }
 
-    if(isBlock(this.matrix) && this.age % game.fps == 0){
+    if(this.isBlock(this.matrix) && this.age % game.fps == 0){
       if(this.check(blockMap, this.matrix, this.x / this.blockSize, (this.y + this.blockSize) / this.blockSize)){
         this.y += this.speed;
       } else {
@@ -119,7 +120,7 @@ var eSprite = Class.create(Sprite,{
         this.mergeMatrix(blockMap, this.matrix, this.x / this.blockSize, this.y / this.blockSize);
         this.y = 0;
         this.x = this.center;
-        this.image.context.clearRect(0, 0, this.image.width, this.image.height); //前のブロック領域を削除
+        this.clearRows(blockMap);
         this.matrix = BLOCKS[random(BLOCKS.length)];
         this.color = BLOCK_COLORS[random(BLOCK_COLORS.length)];
       }
@@ -160,6 +161,30 @@ var eSprite = Class.create(Sprite,{
         }
       }
     }
+  },
+  clearRows:function(map){
+    for (var y = 0; y < this.mapHeight; y ++) {
+      var full = true;
+      for (var x = 0; x < this.mapWidth; x ++) {
+        if (!map[y][x]) {
+          full = false;
+        }
+      }
+      if (full) {
+        map.splice(y, 1);
+        var newRow = [];
+        for (var i = 0; i < this.mapWidth; i ++) {
+          newRow[i] = 0;
+        }
+        map.unshift(newRow);
+      }
+    }
+  },
+  isBlock:function(block){
+    if(block != blockMap){
+      return true;
+    }
+    return false;
   }
 });
 
@@ -199,16 +224,6 @@ function random(size){
   return Math.floor(Math.random() * size);
 }
 
-function isBlock(block){
-  if(block != blockMap){
-    return true;
-  }
-  return false;
-}
-
-function createFrame(){
-
-}
 
 window.onload = function(){
   initGame();
