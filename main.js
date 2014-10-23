@@ -2,7 +2,7 @@ enchant();
 
 gsettings = {                 
   width:320
-    ,height:336
+    ,height:320
     ,fps:10
 };
 
@@ -48,7 +48,7 @@ var BLOCKS = [
     "red", "yellow", "magenta", "green", "blue", "orange", "cyan"
   ];
 
-  var stage, game, posx = 0, posy = 0, blockMap= [];
+  var stage, game, blockMap= [];
 
   blockMapSettings = {
     width:320
@@ -64,7 +64,7 @@ blockSettings = {
     ,height: 100
     ,matrix: BLOCKS[random(BLOCKS.length)]
     ,color: BLOCK_COLORS[random(BLOCK_COLORS.length)]
-    ,blockSize: (gsettings.height - 16) / blockMapSettings.blockMapHeight
+    ,blockSize: gsettings.height / blockMapSettings.blockMapHeight
     ,speed: 16
 }
 
@@ -79,6 +79,8 @@ var eSprite = Class.create(Sprite,{
     this.blockSize = assets.blockSize;
     this.matrix = assets.matrix;
     this.color = assets.color;
+    this.center = game.width / 4 - this.blockSize;
+    this.x = this.center;
     stage.addChild(this);
   },
   onenterframe:function(){
@@ -106,14 +108,23 @@ var eSprite = Class.create(Sprite,{
       while(this.check(blockMap, this.matrix, this.x / this.blockSize, y)){
         y++;
       }
-      this.y = y * this.blockSize;
+      this.y = y * this.blockSize - this.blockSize;
     }
 
     if(isBlock(this.matrix) && this.age % game.fps == 0){
-      if(this.check(blockMap, this.matrix, this.x / this.blockSize, this.y / this.blockSize)){
+      if(this.check(blockMap, this.matrix, this.x / this.blockSize, (this.y + this.blockSize) / this.blockSize)){
         this.y += this.speed;
+      } else {
+        //blockMap配列にマージしてリセット処理
+        this.mergeMatrix(blockMap, this.matrix, this.x / this.blockSize, this.y / this.blockSize);
+        this.y = 0;
+        this.x = this.center;
+        this.image.context.clearRect(0, 0, this.image.width, this.image.height); //前のブロック領域を削除
+        this.matrix = BLOCKS[random(BLOCKS.length)];
+        this.color = BLOCK_COLORS[random(BLOCK_COLORS.length)];
       }
     }
+
     this.image.paintMatrix(this.matrix, this.color);
   },
   check:function(map, block, offsetx, offsety){
@@ -140,6 +151,15 @@ var eSprite = Class.create(Sprite,{
       }
     }
     return rotated;
+  },
+  mergeMatrix:function(map, block, offsetx, offsety){
+    for (var y = 0; y < this.mapHeight; y ++) {
+      for (var x = 0; x < this.mapWidth; x ++) {
+        if (block[y - offsety] && block[y - offsety][x - offsetx]) {
+          map[y][x]++;
+        }
+      }
+    }
   }
 });
 
@@ -197,6 +217,7 @@ window.onload = function(){
     var blockSprite = new eSprite(blockSettings,blockSurface);
     var blockMapSurface = new eSurface(blockMapSettings);
     var blockMapSprite = new eSprite(blockMapSettings, blockMapSurface);
+
 
     //フレーム生成
     var borderLine = new Surface(gsettings.width, gsettings.height);
