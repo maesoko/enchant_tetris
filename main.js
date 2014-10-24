@@ -46,20 +46,20 @@ var BLOCKS = [
   ]
   ];
 
-  var BLOCK_COLORS = [
+var BLOCK_COLORS = [
   "red", "yellow", "magenta", "green", "blue", "orange", "cyan"
-  ];
+];
 
-  var stage, game, blockMap= [];
+var stage, game, blockMap= [];
 
-  var blockMapSettings = {
-    width:320
-      ,height:320
-      ,matrix: blockMap 
-      ,color: "gray"
-      ,blockMapWidth: 10
-      ,blockMapHeight: 20
-  };
+var blockMapSettings = {
+  width:320
+    ,height:320
+    ,matrix: blockMap 
+    ,color: "gray"
+    ,blockMapWidth: 10
+    ,blockMapHeight: 20
+};
 
 var blockSettings = {
   width: 100
