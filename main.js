@@ -1,6 +1,8 @@
+"use strict"
+
 enchant();
 
-gsettings = {                 
+var gsettings = {                 
   width:320
     ,height:320
     ,fps:10
@@ -50,7 +52,7 @@ var BLOCKS = [
 
   var stage, game, blockMap= [];
 
-  blockMapSettings = {
+  var blockMapSettings = {
     width:320
       ,height:320
       ,matrix: blockMap 
@@ -59,7 +61,7 @@ var BLOCKS = [
       ,blockMapHeight: 20
   }
 
-blockSettings = {
+var blockSettings = {
   width: 100
     ,height: 100
     ,matrix: BLOCKS[random(BLOCKS.length)]
@@ -117,11 +119,8 @@ var eSprite = Class.create(Sprite,{
         } else {
           //blockMap配列にマージしてリセット処理
           this.mergeMatrix(blockMap, this.matrix, this.x / this.blockSize, this.y / this.blockSize);
-          this.y = 0;
-          this.x = this.center;
           this.clearRows(blockMap);
-          this.matrix = BLOCKS[random(BLOCKS.length)];
-          this.color = BLOCK_COLORS[random(BLOCK_COLORS.length)];
+          this.reset();
           if(this.gameOver()){
             this.image.paintMatrix(this.matrix, this.color);
             game.end();
@@ -194,6 +193,12 @@ var eSprite = Class.create(Sprite,{
         return true;
       }
       return false;
+    },
+    reset:function(){
+      this.y = 0;
+      this.x = this.center;
+      this.matrix = BLOCKS[random(BLOCKS.length)];
+      this.color = BLOCK_COLORS[random(BLOCK_COLORS.length)];
     }
 });
 
@@ -204,8 +209,8 @@ var eSurface = Class.create(Surface,{
     paintMatrix:function(matrix, color){ //ブロックを描画
       this.context.fillStyle = color;
       this.context.strokeStyle = "black";
-      for(y = 0; y < matrix.length; y++){
-        for(x = 0; x < matrix[y].length; x++){
+      for(var y = 0; y < matrix.length; y++){
+        for(var x = 0; x < matrix[y].length; x++){
           if(matrix[y][x]){
             this.context.strokeRect(x * blockSettings.blockSize, y * blockSettings.blockSize, blockSettings.blockSize, blockSettings.blockSize);
             this.context.fillRect(x * blockSettings.blockSize, y * blockSettings.blockSize, blockSettings.blockSize, blockSettings.blockSize);
