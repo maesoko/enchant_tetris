@@ -9,45 +9,45 @@ var gsettings = {
 };
 
 var BLOCKS = [
-  [
-    [1,1],
-    [0,1],
-    [0,1]
+[
+[1,1],
+  [0,1],
+  [0,1]
   ],
   [
-    [1,1],
-    [1,0],
-    [1,0]
+  [1,1],
+  [1,0],
+  [1,0]
   ],	
   [
-    [1,1],
-    [1,1]
+  [1,1],
+  [1,1]
   ],
   [
-    [1,0],
-    [1,1],
-    [1,0]
+  [1,0],
+  [1,1],
+  [1,0]
   ],
   [
-    [1,0],
-    [1,1],
-    [0,1]
+  [1,0],
+  [1,1],
+  [0,1]
   ],
   [
-    [0,1],
-    [1,1],
-    [1,0]
+  [0,1],
+  [1,1],
+  [1,0]
   ],
   [
-    [1],
-    [1],
-    [1],
-    [1]
+  [1],
+  [1],
+  [1],
+  [1]
   ]
   ];
 
   var BLOCK_COLORS = [
-    "red", "yellow", "magenta", "green", "blue", "orange", "cyan"
+  "red", "yellow", "magenta", "green", "blue", "orange", "cyan"
   ];
 
   var stage, game, blockMap= [];
@@ -59,7 +59,7 @@ var BLOCKS = [
       ,color: "gray"
       ,blockMapWidth: 10
       ,blockMapHeight: 20
-  }
+  };
 
 var blockSettings = {
   width: 100
@@ -68,7 +68,7 @@ var blockSettings = {
     ,color: BLOCK_COLORS[random(BLOCK_COLORS.length)]
     ,blockSize: gsettings.height / blockMapSettings.blockMapHeight
     ,speed: 16
-}
+};
 
 var eSprite = Class.create(Sprite,{
   initialize:function(assets,image){
@@ -87,24 +87,28 @@ var eSprite = Class.create(Sprite,{
     onenterframe:function(){
       this.image.context.clearRect(0, 0, this.image.width, this.image.height); //前のブロック領域を削除
 
+      //上キー:回転処理
       if(game.input.up && this.isBlock(this.matrix)){
         if(this.check(blockMap, this.rotate(this.matrix), this.x / this.blockSize, this.y / this.blockSize)){
           this.matrix = this.rotate(this.matrix);
         }
       }
 
+      //左キー:移動処理
       if(game.input.left && this.isBlock(this.matrix)){
         if(this.check(blockMap, this.matrix, (this.x - this.blockSize) / this.blockSize, this.y / this.blockSize)){
           this.x -= this.speed;
         }
       }
 
+      //右キー:移動処理
       if(game.input.right && this.isBlock(this.matrix)){
         if(this.check(blockMap, this.matrix, (this.x + this.blockSize) / this.blockSize, this.y / this.blockSize)){
           this.x += this.speed;
         }
       }
 
+      //下キー:落下処理
       if(game.input.down && this.isBlock(this.matrix)){
         var y = this.y / this.blockSize;
         while(this.check(blockMap, this.matrix, this.x / this.blockSize, y)){
@@ -113,6 +117,7 @@ var eSprite = Class.create(Sprite,{
         this.y = y * this.blockSize - this.blockSize;
       }
 
+      //自動落下
       if(this.isBlock(this.matrix) && this.age % game.fps == 0){
         if(this.check(blockMap, this.matrix, this.x / this.blockSize, (this.y + this.blockSize) / this.blockSize)){
           this.y += this.speed;
@@ -122,7 +127,7 @@ var eSprite = Class.create(Sprite,{
           this.clearRows(blockMap);
           this.reset();
           if(this.gameOver()){
-            this.image.paintMatrix(this.matrix, this.color);
+            this.image.paintMatrix(this.matrix, "gray");
             game.end();
           }
         }
@@ -244,7 +249,7 @@ function initGame(){ //初期化処理
   }
 }
 
-function random(size){ //配列の長さに応じて乱数返す
+function random(size){ //配列の長さに応じて乱数を返す
   return Math.floor(Math.random() * size);
 }
 
