@@ -50,7 +50,7 @@ var BLOCKS = [
     "red", "yellow", "magenta", "green", "blue", "orange", "cyan"
   ];
 
-  var stage, game, blockMap = [];
+  var stage, game, blockMap = [], scoreLabel;
 
   var blockMapSettings = {
     width:320
@@ -67,6 +67,12 @@ var blockSettings = {
     ,matrix: BLOCKS[random(BLOCKS.length)]
     ,color: BLOCK_COLORS[random(BLOCK_COLORS.length)]
     ,blockSize: gsettings.height / blockMapSettings.blockMapHeight
+    ,score: 10
+};
+
+var padSettings = {
+  x: gsettings.width - 100
+    ,y: gsettings.height - 100
 };
 
 var BlockMap = Class.create(Sprite,{
@@ -78,17 +84,17 @@ var BlockMap = Class.create(Sprite,{
     stage.addChild(this);
   },
   onenterframe:function(){
-    this.image.context.clearRect(0, 0, this.image.width, this.image.height); //前のブロック領域を削除
-    this.paintMatrix(blockMap, this.color); //毎フレームごとにブロックを描画
+    this.paintMatrix(blockMap, this.color, this.blockSize); //毎フレームごとにブロックを描画
   },
-  paintMatrix:function(matrix, color){ //ブロックを描画
+  paintMatrix:function(matrix, color, blockSize){ //ブロックを描画
+    this.image.context.clearRect(0, 0, this.image.width, this.image.height); //前のブロック領域を削除
     this.image.context.fillStyle = color;
     this.image.context.strokeStyle = "black";
     for(var y = 0; y < matrix.length; y++){
       for(var x = 0; x < matrix[y].length; x++){
         if(matrix[y][x]){
-          this.image.context.strokeRect(x * this.blockSize, y * this.blockSize, this.blockSize, this.blockSize);
-          this.image.context.fillRect(x * this.blockSize, y * this.blockSize, this.blockSize, this.blockSize);
+          this.image.context.strokeRect(x * blockSize, y * blockSize, blockSize, blockSize);
+          this.image.context.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
         }
       }
     }
@@ -101,10 +107,11 @@ var Block = Class.create(Sprite,{
     this.image = new Surface(assets.width, assets.height);
     this.color = assets.color;
     this.matrix = assets.matrix;
-    this.mapWidth = 10;
-    this.mapHeight = 20;
+    this.mapWidth = blockMapSettings.blockMapWidth;
+    this.mapHeight = blockMapSettings.blockMapHeight;
     this.speed = assets.blockSize;
     this.blockSize = assets.blockSize;
+    this.score = assets.score;
     this.center = game.width / 4 - this.blockSize;
     this.x = this.center;
     this.y = 0;
@@ -154,18 +161,18 @@ var Block = Class.create(Sprite,{
       }
     }
 
-    this.image.context.clearRect(0, 0, this.image.width, this.image.height); //前のブロック領域を削除
-    this.paintMatrix(this.matrix, this.color); //毎フレームごとにブロックを描画
+    this.paintMatrix(this.matrix, this.color, this.blockSize); //毎フレームごとにブロックを描画
 
   },
-  paintMatrix:function(matrix, color){ //ブロックを描画
+  paintMatrix:function(matrix, color, blockSize){ //ブロックを描画
+    this.image.context.clearRect(0, 0, this.image.width, this.image.height); //前のブロック領域を削除
     this.image.context.fillStyle = color;
     this.image.context.strokeStyle = "black";
     for(var y = 0; y < matrix.length; y++){
       for(var x = 0; x < matrix[y].length; x++){
         if(matrix[y][x]){
-          this.image.context.strokeRect(x * this.blockSize, y * this.blockSize, this.blockSize, this.blockSize);
-          this.image.context.fillRect(x * this.blockSize, y * this.blockSize, this.blockSize, this.blockSize);
+          this.image.context.strokeRect(x * blockSize, y * blockSize, blockSize, blockSize);
+          this.image.context.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
         }
       }
     }
@@ -219,12 +226,13 @@ var Block = Class.create(Sprite,{
           newRow[i] = 0;
         }
         map.unshift(newRow);
+        scoreLabel.score += this.score; //消去した行数分スコアを加算
       }
     }
   },
   gameOver:function(){ //ゲームオーバー判定
     if(this.y == 0 && !this.check(blockMap, this.matrix, this.x / this.blockSize, this.y / this.blockSize)){
-      this.paintMatrix(this.matrix, "gray");
+      this.paintMatrix(this.matrix, "gray", this.blockSize);
       game.end();
     }
     return;
@@ -243,6 +251,14 @@ var BorderLine = Class.create(Sprite,{
     this.image = new Surface(width,height);
     this.image.context.strokeRect(0,0,this.width / 2, this.height);
     stage.addChild(this);
+  }
+});
+
+var ePad = Class.create(Pad,{
+  initialize:function(assets){
+   Pad.call(this);
+   this.moveTo(assets.x, assets.y);
+   stage.addChild(this);
   }
 });
 
@@ -273,6 +289,11 @@ window.onload = function(){
     new BlockMap(blockMapSettings);
     //ボーダーライン生成
     new BorderLine(gsettings.width, gsettings.height);
+    //仮想パッド表示
+    new ePad(padSettings);
+    //スコアラベル表示
+    scoreLabel = new ScoreLabel(game.width / 2, 0);
+    stage.addChild(scoreLabel);
   };
   game.start();
 };
