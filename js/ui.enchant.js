@@ -47,7 +47,7 @@
 /**
  * @type {Object}
  */
-enchant.ui = { assets: ['pad.png', 'apad.png', 'icon0.png', 'font0.png'] };
+enchant.ui = { assets: ['images/pad.png', 'images/apad.png', 'images/icon0.png', 'images/font0.png'] };
 
 /**
  * 方向キーパッドのクラス: Pad
@@ -61,7 +61,7 @@ enchant.ui.Pad = enchant.Class.create(enchant.Sprite, {
      */
     initialize: function() {
         var core = enchant.Core.instance;
-        var image = core.assets['pad.png'];
+        var image = core.assets['images/pad.png'];
         enchant.Sprite.call(this, image.width / 2, image.height);
         this.image = image;
         this.input = { left: false, right: false, up: false, down: false };
@@ -544,7 +544,7 @@ enchant.ui.MutableText = enchant.Class.create(enchant.Sprite, {
             }
             x = charPos % this.widthItemNum;
             y = (charPos / this.widthItemNum) | 0;
-            this.image.draw(enchant.Game.instance.assets['font0.png'],
+            this.image.draw(enchant.Game.instance.assets['images/font0.png'],
                 x * this.fontSize, y * this.fontSize, this.fontSize, this.fontSize,
                 (i % this.row) * this.fontSize, ((i / this.row) | 0) * this.fontSize, this.fontSize, this.fontSize);
         }
