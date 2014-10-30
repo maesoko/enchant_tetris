@@ -156,7 +156,7 @@ var Block = Class.create(AbstractPaint,{
         while(this.check(blockMap, this.matrix, this.posx, y)){
           y++;
         }
-        this.y = y * this.blockSize - this.blockSize;
+        this.y = (y - 1) * this.blockSize;
       }
 
       //自動落下
